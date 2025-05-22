@@ -1,94 +1,80 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
-import { Trash2 } from "lucide-react";
 
 export default function EditarCliente() {
   const { cpf } = useParams();
   const navigate = useNavigate();
 
-  const [cliente, setCliente] = useState({ cpf: "", nome: "", email: "" });
-  const [telefones, setTelefones] = useState([]);
-  const [novoTelefone, setNovoTelefone] = useState("");
+  const [cliente, setCliente] = useState({
+    cpf: "",
+    nome: "",
+    email: "",
+    rua: "",
+    numero: "",
+    bairro: "",
+    cidade: "",
+    cep: ""
+  });
 
   useEffect(() => {
-    async function carregar() {
+    async function fetchCliente() {
       try {
-        const resCliente = await api.get(`/clientes/${cpf}`);
-        setCliente(resCliente.data);
-
-        const resTels = await api.get(`/telefones/${cpf}`);
-        setTelefones(resTels.data.map(t => t.telefone));
-      } catch (erro) {
-        console.error("Erro ao carregar cliente:", erro);
-        alert("Erro ao carregar dados do cliente.");
-        navigate("/clientes");
+        const res = await api.get(`/clientes/${cpf}`);
+        setCliente(res.data);
+      } catch (err) {
+        alert("Erro ao buscar cliente.");
       }
     }
-
-    carregar();
-  }, [cpf, navigate]);
+    fetchCliente();
+  }, [cpf]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCliente({ ...cliente, [name]: value });
   };
 
-  const adicionarTelefone = () => {
-    if (novoTelefone && !telefones.includes(novoTelefone)) {
-      setTelefones([...telefones, novoTelefone]);
-      setNovoTelefone("");
-    }
-  };
-
-  const removerTelefone = async (telefone) => {
-    try {
-      await api.delete("/telefones", {
-        data: {
-          cpfCliente: cpf,
-          telefone: telefone
-        }
-      });
-      setTelefones(telefones.filter(t => t !== telefone));
-    } catch (erro) {
-      console.error("Erro ao remover telefone:", erro);
-      alert("Erro ao remover telefone.");
+  const handleCepBlur = () => {
+    if (cliente.cep.length === 8 || cliente.cep.length === 9) {
+      fetch(`https://viacep.com.br/ws/${cliente.cep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.erro) {
+            setCliente(prev => ({
+              ...prev,
+              rua: data.logradouro,
+              bairro: data.bairro,
+              cidade: data.localidade
+            }));
+          } else {
+            alert("CEP não encontrado.");
+          }
+        })
+        .catch(() => alert("Erro ao buscar o CEP."));
     }
   };
 
   const salvar = async () => {
     try {
       await api.put("/clientes", cliente);
-
-      const telefonesAtuais = await api.get(`/telefones/${cpf}`);
-      const existentes = telefonesAtuais.data.map(t => t.telefone);
-      const novos = telefones.filter(t => !existentes.includes(t));
-
-      for (const tel of novos) {
-        await api.post("/telefones", {
-          cpfCliente: cpf,
-          telefone: tel
-        });
-      }
-
-      alert("Cliente salvo com sucesso!");
+      alert("Cliente atualizado com sucesso!");
       navigate("/clientes");
-    } catch (erro) {
-      console.error("Erro ao salvar cliente:", erro.response?.data || erro.message);
-      alert("Erro ao salvar cliente: " + (erro.response?.data || erro.message));
+    } catch (err) {
+      alert("Erro ao atualizar cliente.");
     }
   };
 
   return (
     <div className="min-h-screen bg-white p-6 max-w-2xl mx-auto">
       <h1 className="text-3xl font-serif font-bold mb-6 text-gray-800">Editar Cliente</h1>
-
       <div className="space-y-4">
         <input
           type="text"
+          name="cpf"
+          placeholder="CPF"
           value={cliente.cpf}
-          disabled
-          className="w-full p-2 border border-gray-300 rounded bg-gray-100 text-gray-500"
+          readOnly
+          className="w-full p-2 border border-gray-300 rounded bg-gray-100"
         />
         <input
           type="text"
@@ -106,38 +92,47 @@ export default function EditarCliente() {
           onChange={handleChange}
           className="w-full p-2 border border-gray-300 rounded"
         />
-
-        <div className="mt-4">
-          <h3 className="text-md font-semibold mb-2">Telefones</h3>
-
-          {telefones.map((tel, index) => (
-            <div key={index} className="flex items-center justify-between mb-2">
-              <span>{tel}</span>
-              <button
-                onClick={() => removerTelefone(tel)}
-                className="text-red-600 hover:text-red-800"
-              >
-                <Trash2 size={18} />
-              </button>
-            </div>
-          ))}
-
-          <div className="flex gap-2 mt-3">
-            <input
-              type="text"
-              placeholder="Novo telefone"
-              value={novoTelefone}
-              onChange={(e) => setNovoTelefone(e.target.value)}
-              className="flex-1 p-2 border border-gray-300 rounded"
-            />
-            <button
-              onClick={adicionarTelefone}
-              className="px-4 bg-green-600 text-white rounded hover:bg-green-700"
-            >
-              +
-            </button>
-          </div>
-        </div>
+        <input
+          type="text"
+          name="cep"
+          placeholder="CEP"
+          value={cliente.cep}
+          onChange={handleChange}
+          onBlur={handleCepBlur}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          type="text"
+          name="rua"
+          placeholder="Rua"
+          value={cliente.rua}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          type="text"
+          name="numero"
+          placeholder="Número"
+          value={cliente.numero}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          type="text"
+          name="bairro"
+          placeholder="Bairro"
+          value={cliente.bairro}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          type="text"
+          name="cidade"
+          placeholder="Cidade"
+          value={cliente.cidade}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
 
         <div className="flex justify-between mt-6">
           <button

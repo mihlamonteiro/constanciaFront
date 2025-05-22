@@ -9,7 +9,12 @@ export default function AdicionarCliente() {
   const [cliente, setCliente] = useState({
     cpf: "",
     nome: "",
-    email: ""
+    email: "",
+    rua: "",
+    numero: "",
+    bairro: "",
+    cidade: "",
+    cep: ""
   });
 
   const [telefones, setTelefones] = useState([]);
@@ -18,6 +23,26 @@ export default function AdicionarCliente() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCliente({ ...cliente, [name]: value });
+  };
+
+  const handleCepBlur = () => {
+    if (cliente.cep.length === 8 || cliente.cep.length === 9) {
+      fetch(`https://viacep.com.br/ws/${cliente.cep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.erro) {
+            setCliente(prev => ({
+              ...prev,
+              rua: data.logradouro,
+              bairro: data.bairro,
+              cidade: data.localidade
+            }));
+          } else {
+            alert("CEP não encontrado.");
+          }
+        })
+        .catch(() => alert("Erro ao buscar o CEP."));
+    }
   };
 
   const adicionarTelefone = () => {
@@ -81,6 +106,47 @@ export default function AdicionarCliente() {
           name="email"
           placeholder="Email"
           value={cliente.email}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          type="text"
+          name="cep"
+          placeholder="CEP"
+          value={cliente.cep}
+          onChange={handleChange}
+          onBlur={handleCepBlur}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          type="text"
+          name="rua"
+          placeholder="Rua"
+          value={cliente.rua}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          type="text"
+          name="numero"
+          placeholder="Número"
+          value={cliente.numero}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          type="text"
+          name="bairro"
+          placeholder="Bairro"
+          value={cliente.bairro}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          type="text"
+          name="cidade"
+          placeholder="Cidade"
+          value={cliente.cidade}
           onChange={handleChange}
           className="w-full p-2 border border-gray-300 rounded"
         />

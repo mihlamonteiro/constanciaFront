@@ -9,36 +9,44 @@ export default function AdicionarProduto() {
     descricao: "",
     preco: "",
     estoque: "",
-    dataCadastro: "", // formato yyyy-MM-dd
+    dataCadastro: "",
     cpfAdministrador: ""
   });
+  const [imagem, setImagem] = useState(null);
 
   const navigate = useNavigate();
-
-  const adicionarProduto = async () => {
-    console.log("Produto sendo enviado:", produto); // Debug
-
-    try {
-      const resposta = await api.post("/produtos", produto);
-      console.log("Resposta da API:", resposta.data);
-      navigate("/produtos");
-    } catch (erro) {
-      if (erro.response) {
-        console.error("Erro na resposta da API:", erro.response.data);
-        alert("Erro ao adicionar produto: " + erro.response.data);
-      } else if (erro.request) {
-        console.error("Sem resposta da API:", erro.request);
-        alert("Erro: sem resposta da API.");
-      } else {
-        console.error("Erro desconhecido:", erro.message);
-        alert("Erro desconhecido ao adicionar produto.");
-      }
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProduto({ ...produto, [name]: value });
+  };
+
+  const handleImagemChange = (e) => {
+    setImagem(e.target.files[0]);
+  };
+
+  const adicionarProduto = async () => {
+    if (!imagem) {
+      alert("Selecione uma imagem para o produto.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("produto", new Blob([JSON.stringify(produto)], { type: "application/json" }));
+    formData.append("imagem", imagem);
+
+    try {
+      await api.post("/produtos/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      alert("Produto adicionado com sucesso!");
+      navigate("/produtos");
+    } catch (erro) {
+      console.error("Erro ao adicionar produto:", erro);
+      alert("Erro ao adicionar produto: " + (erro.response?.data || erro.message));
+    }
   };
 
   return (
@@ -103,10 +111,18 @@ export default function AdicionarProduto() {
         <label className="block text-sm text-gray-700">CPF do Administrador</label>
         <input
           type="text"
-          name="cpfAdministrador" // <- CAMPO CORRETO agora
+          name="cpfAdministrador"
           value={produto.cpfAdministrador}
           onChange={handleChange}
           className="w-full p-2 border border-gray-300 rounded mb-4"
+        />
+
+        <label className="block text-sm text-gray-700">Imagem do Produto</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImagemChange}
+          className="w-full mb-4"
         />
 
         <div className="flex justify-between">

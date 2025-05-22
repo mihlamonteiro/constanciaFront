@@ -4,7 +4,6 @@ import api from "../services/api";
 import { Search, Pencil, Trash2 } from "lucide-react";
 import { Plus } from "lucide-react";
 
-
 export default function Produtos() {
   const [produtos, setProdutos] = useState([]);
   const [busca, setBusca] = useState("");
@@ -44,7 +43,6 @@ export default function Produtos() {
         <h1 className="text-3xl font-serif font-bold text-gray-800">Produtos Disponíveis</h1>
         <div className="flex gap-2 items-center">
           <button
-          
             onClick={() => navigate("/produtos/adicionar")}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl shadow-sm hover:bg-green-700 hover:shadow-md transition-all duration-200"
           >
@@ -71,7 +69,7 @@ export default function Produtos() {
             className="group bg-white shadow-md rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg"
           >
             <img
-              src={produto.imagem || "/default-image.jpg"}
+              src={produto.nomeImagem ? `http://localhost:8080/uploads/${produto.nomeImagem}` : "/default-image.jpg"}
               alt={produto.nome}
               className="w-full h-48 object-cover"
             />

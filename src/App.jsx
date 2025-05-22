@@ -17,7 +17,7 @@ import EditarAdministrador from "./pages/EditarAdministrador";
 import Indica from "./pages/Indica";
 import Compras from "./pages/Compras";
 import Avaliacoes from "./pages/Avaliacoes";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/DashboardPro";
 import VisualizarCompras from "./pages/VisualizarCompras";
 
 

@@ -3,31 +3,41 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 export default function EditarProduto() {
-  const { codigo } = useParams(); // Captura o 'codigo' da URL
+  const { codigo } = useParams();
   const [produto, setProduto] = useState(null);
+  const [imagem, setImagem] = useState(null);
   const navigate = useNavigate();
 
-  // Carregar o produto com base no 'codigo'
   useEffect(() => {
     async function carregarProduto() {
       try {
-        const resposta = await api.get(`/produtos/${codigo}`); // Requisição para pegar o produto pelo 'codigo'
-        setProduto(resposta.data); // Preenche o produto com os dados
+        const resposta = await api.get(`/produtos/${codigo}`);
+        setProduto(resposta.data);
       } catch (erro) {
         console.error("Erro ao carregar produto:", erro);
       }
     }
 
     if (codigo) {
-      carregarProduto(); // Só tenta carregar se o codigo existir
+      carregarProduto();
     }
   }, [codigo]);
 
-  // Função para salvar as edições
   async function salvarEdicao() {
     try {
-      await api.put(`/produtos/${codigo}`, produto); // Envia a atualização do produto pelo 'codigo'
-      navigate("/produtos"); // Redireciona para a lista de produtos
+      const formData = new FormData();
+      formData.append("produto", new Blob([JSON.stringify(produto)], { type: "application/json" }));
+      if (imagem) {
+        formData.append("imagem", imagem);
+      }
+
+      await api.put(`/produtos/${codigo}/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+
+      navigate("/produtos");
     } catch (erro) {
       console.error("Erro ao editar produto:", erro);
     }
@@ -69,6 +79,23 @@ export default function EditarProduto() {
           value={produto.estoque}
           onChange={(e) => setProduto({ ...produto, estoque: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded mb-4"
+        />
+
+        <label className="block text-sm text-gray-700">Imagem Atual</label>
+        <div className="mb-4">
+          <img
+            src={produto.nomeImagem ? `http://localhost:8080/uploads/${produto.nomeImagem}` : "/default-image.jpg"}
+            alt="Imagem atual do produto"
+            className="w-32 h-32 object-cover rounded border"
+          />
+        </div>
+
+        <label className="block text-sm text-gray-700">Nova Imagem (opcional)</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImagem(e.target.files[0])}
+          className="w-full mb-4"
         />
 
         <div className="flex justify-between">

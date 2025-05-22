@@ -1,5 +1,4 @@
 import React from "react";
-import { Clock } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Home,
@@ -9,7 +8,8 @@ import {
   UserPlus,
   Tag,
   Star,
-  ThumbsUp
+  ThumbsUp,
+  Clock
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -27,7 +27,7 @@ const Sidebar = () => {
       {/* LINKS */}
       <nav className="p-2">
         <ul className="space-y-1 text-sm font-serif text-gray-800 font-medium">
-          <SidebarItem to="/dashboard" icon={<Home size={20} />} label="Médias" />
+          <SidebarItem to="/dashboard" icon={<Home size={20} />} label="Dashboard" />
           <SidebarItem to="/produtos" icon={<ShoppingBag size={20} />} label="Produtos" />
           <SidebarItem to="/clientes" icon={<Users size={20} />} label="Clientes" />
           <SidebarItem to="/funcionarios" icon={<Briefcase size={20} />} label="Funcionários" />
@@ -37,8 +37,6 @@ const Sidebar = () => {
           <SidebarItem to="/avaliacoes" icon={<Star size={20} />} label="Avaliações" />
           <SidebarItem to="/indicacoes" icon={<ThumbsUp size={20} />} label="Indicações" />
           <SidebarItem to="/compras/historico" icon={<Clock size={20} />} label="Histórico de Compras" />
-
-          
         </ul>
       </nav>
     </aside>
@@ -50,13 +48,13 @@ const SidebarItem = ({ to, icon, label }) => {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center gap-3 px-4 py-2 rounded-md transition-all whitespace-nowrap overflow-hidden ${
+        `flex items-center gap-3 px-4 py-2 rounded-md transition-all ${
           isActive ? "bg-gray-100 font-semibold" : "hover:bg-gray-100"
         }`
       }
     >
-      {icon}
-      <span className="opacity-0 group-hover:opacity-100 transition-all duration-300">
+      <div className="min-w-[24px] flex justify-center">{icon}</div>
+      <span className="hidden group-hover:inline-block transition-all duration-300">
         {label}
       </span>
     </NavLink>
