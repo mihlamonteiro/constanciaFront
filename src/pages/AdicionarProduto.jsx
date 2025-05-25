@@ -90,6 +90,17 @@ export default function AdicionarProduto() {
           className="w-full p-2 border border-gray-300 rounded mb-4"
         />
 
+        <label className="block text-sm text-gray-700">Preço de Produção</label>
+        <input
+          type="number"
+          step="0.01"
+          name="precoProducao"
+          value={produto.precoProducao || ""}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded mb-4"
+        />
+
+
         <label className="block text-sm text-gray-700">Estoque</label>
         <input
           type="number"

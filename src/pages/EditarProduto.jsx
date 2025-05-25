@@ -73,6 +73,14 @@ export default function EditarProduto() {
           className="w-full p-2 border border-gray-300 rounded mb-4"
         />
 
+        <label className="block text-sm text-gray-700">Preço de Produção</label>
+        <input
+          type="number"
+          value={produto.precoProducao ?? ""}
+          onChange={(e) => setProduto({ ...produto, precoProducao: e.target.value })}
+          className="w-full p-2 border border-gray-300 rounded mb-4"
+        />
+
         <label className="block text-sm text-gray-700">Estoque</label>
         <input
           type="number"
