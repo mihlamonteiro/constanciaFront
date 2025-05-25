@@ -17,11 +17,16 @@ export default function EditarCliente() {
     cep: ""
   });
 
+  const [telefones, setTelefones] = useState([]);
+
   useEffect(() => {
     async function fetchCliente() {
       try {
         const res = await api.get(`/clientes/${cpf}`);
         setCliente(res.data);
+
+        const telRes = await api.get(`/clientes/${cpf}/telefones`);
+        setTelefones(telRes.data || []);
       } catch (err) {
         alert("Erro ao buscar cliente.");
       }
@@ -54,10 +59,27 @@ export default function EditarCliente() {
     }
   };
 
+  const handleTelefoneChange = (index, value) => {
+    const novos = [...telefones];
+    novos[index] = value;
+    setTelefones(novos);
+  };
+
+  const adicionarTelefone = () => {
+    setTelefones([...telefones, ""]);
+  };
+
+  const removerTelefone = (index) => {
+    const novos = [...telefones];
+    novos.splice(index, 1);
+    setTelefones(novos);
+  };
+
   const salvar = async () => {
     try {
       await api.put("/clientes", cliente);
-      alert("Cliente atualizado com sucesso!");
+      await api.put(`/clientes/${cpf}/telefones`, telefones);
+      alert("Cliente e telefones atualizados com sucesso!");
       navigate("/clientes");
     } catch (err) {
       alert("Erro ao atualizar cliente.");
@@ -133,6 +155,26 @@ export default function EditarCliente() {
           onChange={handleChange}
           className="w-full p-2 border border-gray-300 rounded"
         />
+
+        <div>
+          <h2 className="font-semibold text-lg text-gray-800">Telefones</h2>
+          {telefones.map((tel, index) => (
+            <div key={index} className="flex items-center gap-2 mt-2">
+              <input
+                type="text"
+                value={tel}
+                onChange={e => handleTelefoneChange(index, e.target.value)}
+                className="flex-1 p-2 border border-gray-300 rounded"
+              />
+              <button onClick={() => removerTelefone(index)} className="px-2 py-1 bg-red-500 text-white rounded">
+                Remover
+              </button>
+            </div>
+          ))}
+          <button onClick={adicionarTelefone} className="mt-2 px-4 py-2 bg-green-500 text-white rounded">
+            Adicionar Telefone
+          </button>
+        </div>
 
         <div className="flex justify-between mt-6">
           <button
