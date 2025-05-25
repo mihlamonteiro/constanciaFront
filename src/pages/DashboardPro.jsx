@@ -42,6 +42,8 @@ export default function DashboardPro() {
   const [ano2, setAno2] = useState(2024);
   const [mesComparado, setMesComparado] = useState("04");
   const lojaCoord = [-8.135926687318504, -34.90587539912689];
+  const [mediaAvaliacao, setMediaAvaliacao] = useState(null);
+
 
   useEffect(() => {
     carregarDados();
@@ -56,7 +58,7 @@ export default function DashboardPro() {
       const [totalClientesRes, indicacoesRes, clientesRes] = await Promise.all([
         api.get("/compras/dashboard/total-clientes"),
         api.get("/compras/dashboard/clientes-mais-indicaram"),
-        api.get("/clientes")
+        api.get("/clientes"),
       ]);
 
       setResumo({
@@ -77,6 +79,14 @@ export default function DashboardPro() {
     } catch (err) {
       console.warn("⚠️ Erro em vendas mensais:", err);
     }
+
+    try {
+      const mediaRes = await api.get("/compras/dashboard/media-avaliacao-loja");
+      setMediaAvaliacao(mediaRes.data);
+    } catch (err) {
+      console.warn("⚠️ Erro ao carregar média de avaliação:", err);
+    }
+
 
     try {
       const categoriaRes = await api.get("/compras/dashboard/produtos-vendidos-por-categoria?ano=2024");
@@ -109,8 +119,7 @@ export default function DashboardPro() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <CardResumo titulo="Total de Clientes" valor={resumo.totalClientes} cor="bg-green-100" />
         <CardResumo titulo="Top Indicadores" valor={resumo.topIndicadores} cor="bg-blue-100" />
-        <CardResumo titulo="Satisfação" valor="4.7 / 5" cor="bg-yellow-100" />
-        <CardResumo titulo="Ano" valor="2024" cor="bg-gray-100" />
+        <CardResumo titulo="Satisfação" valor={mediaAvaliacao ? `${mediaAvaliacao.toFixed(1)} / 5` : "--"}cor="bg-yellow-100" />
       </div>
 
       <div className="bg-white rounded-xl shadow p-4 mb-8">
