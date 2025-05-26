@@ -95,7 +95,7 @@ export default function Administradores() {
                     : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
                 }`}
               >
-                {adm.ativo ? <PowerOff size={14} /> : <Power size={14} />}
+                {adm.ativo ? <PowerOff size={14} /> : <Power size={14} />} Desativar
               </button>
             </div>
           </div>
