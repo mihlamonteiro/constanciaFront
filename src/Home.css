@@ -1,0 +1,16 @@
+.bemvindo {
+  font-family: 'Great Vibes', cursive; /* Ou a fonte exata do logo */
+  font-size: 3rem; /* Ajuste para o tamanho desejado */
+  color: transparent;
+  background: linear-gradient(45deg, #f5c21b, #d17000);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
+  transition: all 0.5s ease-in-out;
+}
+
+.bemvindo:hover {
+  filter: brightness(1.3) drop-shadow(0 0 5px #f5c21b);
+  cursor: pointer;
+}

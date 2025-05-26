@@ -19,14 +19,21 @@ export default function Compras() {
     api.get("/produtos").then(res => setProdutos(res.data));
   }, []);
 
-  useEffect(() => {
-    let total = 0;
-    itens.forEach(item => {
-      const p = produtos.find(prod => prod.codigo === parseInt(item.codigoProduto));
-      if (p) total += p.preco * item.quantidade;
-    });
-    setValorTotal(total.toFixed(2));
-  }, [itens, produtos]);
+useEffect(() => {
+  let total = 0;
+  itens.forEach(item => {
+    const p = produtos.find(prod => prod.codigo === parseInt(item.codigoProduto));
+    if (p) total += p.preco * item.quantidade;
+  });
+
+  const cupomSelecionado = cupons.find(c => c.codigo === parseInt(codigoCupom));
+  if (cupomSelecionado) {
+    total = Math.max(0, total - cupomSelecionado.valorDesconto);
+  }
+
+  setValorTotal(total.toFixed(2));
+}, [itens, produtos, codigoCupom, cupons]);
+
 
   const registrarCompra = async () => {
     if (!numero || !dataCompra || !cpfCliente || itens.some(i => !i.codigoProduto || i.quantidade <= 0)) {

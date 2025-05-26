@@ -26,6 +26,7 @@ export default function DashboardPro() {
   const lojaCoord = [-8.135926687318504, -34.90587539912689];
   const [mediaAvaliacao, setMediaAvaliacao] = useState(null);
   const [faturamento, setFaturamento] = useState({});
+  const [topIndicadoresDetalhes, setTopIndicadoresDetalhes] = useState([]);
 
   useEffect(() => { carregarDados(); }, []);
   useEffect(() => { carregarComparativo(); }, [ano1, ano2, mesComparado]);
@@ -37,6 +38,7 @@ export default function DashboardPro() {
         api.get("/compras/dashboard/clientes-mais-indicaram"),
         api.get("/clientes"),
       ]);
+      setTopIndicadoresDetalhes(indicacoesRes.data);
       setResumo({ totalClientes: totalClientesRes.data.totalClientes, topIndicadores: indicacoesRes.data.length });
       setClientes(clientesRes.data);
     } catch (err) { console.error("Erro ao carregar dados principais:", err); }
@@ -54,26 +56,52 @@ export default function DashboardPro() {
     } catch (err) { console.warn("Erro em pizza de categorias:", err); }
   }
 
-  async function carregarComparativo() {
-    try {
-      const mesLimite = mesComparado === "all" ? "12" : mesComparado;
-      const resposta = await api.get("/compras/dashboard/comparativo-vendas", { params: { ano1, ano2, mes: mesLimite } });
-      setComparativo(resposta.data);
-    } catch (err) { console.warn("Erro no gráfico comparativo:", err); }
+ async function carregarComparativo() {
+  try {
+    let url, params;
+    if (mesComparado === "all") {
+      url = "/compras/dashboard/comparativo-vendas";
+      params = { ano1, ano2 };
+    } else {
+      url = "/compras/dashboard/comparativo-vendas-por-dia";
+      params = { ano1, ano2, mes: mesComparado };
+    }
+    const resposta = await api.get(url, { params });
+    setComparativo(resposta.data);
+  } catch (err) {
+    console.warn("Erro no gráfico comparativo:", err);
   }
+}
+
+
 
   return (
     <div className="p-6 font-serif bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Dashboard Corporativo</h1>
-
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <CardResumo titulo="Total de Clientes" valor={resumo.totalClientes} cor="bg-green-100" />
-        <CardResumo titulo="Top Indicadores" valor={resumo.topIndicadores} cor="bg-blue-100" />
-        <CardResumo titulo="Satisfação" valor={mediaAvaliacao ? `${mediaAvaliacao.toFixed(1)} / 5` : "--"} cor="bg-yellow-100" />
-        <CardResumo titulo="Receita Total" valor={`R$ ${faturamento.receita?.toFixed(2) || "--"}`} cor="bg-green-200" />
-        <CardResumo titulo="Custo Total" valor={`R$ ${faturamento.custo?.toFixed(2) || "--"}`} cor="bg-red-200" />
-        <CardResumo titulo="Lucro" valor={`R$ ${faturamento.lucro?.toFixed(2) || "--"}`} cor="bg-yellow-200" />
+        <CardResumo titulo="Total de Clientes" valor={resumo.totalClientes} cor="bg-emerald-100" />
+        <CardResumo
+          titulo="Top 3 Indicadores"
+          valor={
+            <div className="text-sm">
+              <ol className="list-decimal ml-4 space-y-1">
+                {topIndicadoresDetalhes.map((cli, idx) => (
+                  <li key={idx}>{cli.nome} ({cli.total} indicações)</li>
+                ))}
+              </ol>
+            </div>
+          }
+          cor="bg-pink-100"
+        />
+
+        <CardResumo titulo="Satisfação" valor={mediaAvaliacao ? `${mediaAvaliacao.toFixed(1)} / 5` : "--"} cor="bg-lime-100" />
+        <CardResumo titulo="Receita Total" valor={`R$ ${faturamento.receita?.toFixed(2) || "--"}`} cor="bg-violet-100" />
+        <CardResumo titulo="Custo Total" valor={`R$ ${faturamento.custo?.toFixed(2) || "--"}`} cor="bg-rose-100" />
+        <CardResumo titulo="Lucro" valor={`R$ ${faturamento.lucro?.toFixed(2) || "--"}`} cor="bg-indigo-100" />
       </div>
+
+
+
 
       <div className="bg-white rounded-xl shadow p-4 mb-8">
         <div className="flex flex-wrap gap-4 mb-4">
@@ -86,7 +114,7 @@ export default function DashboardPro() {
           <select value={mesComparado} onChange={e => setMesComparado(e.target.value)} className="border p-2 rounded">
             <option value="all">Ano inteiro</option>
             {[...Array(12)].map((_, i) => (
-              <option key={i+1} value={String(i+1).padStart(2, "0")}>{new Date(0, i).toLocaleString('pt-BR', { month: 'long' })}</option>
+              <option key={i + 1} value={String(i + 1).padStart(2, "0")}>{new Date(0, i).toLocaleString('pt-BR', { month: 'long' })}</option>
             ))}
           </select>
         </div>
@@ -96,7 +124,7 @@ export default function DashboardPro() {
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={comparativo}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="mes" />
+            <XAxis dataKey={mesComparado === "all" ? "mes" : "dia"} />
             <YAxis />
             <Tooltip />
             <Legend />
@@ -133,8 +161,16 @@ export default function DashboardPro() {
 }
 
 function CardResumo({ titulo, valor, cor }) {
-  return (<div className={`rounded-lg shadow px-4 py-6 ${cor} text-center`}><h3 className="text-sm text-gray-600 font-medium mb-1">{titulo}</h3><p className="text-2xl font-bold text-gray-800">{valor ?? "--"}</p></div>);
+  return (
+    <div className={`rounded-lg shadow px-4 py-6 ${cor} text-center`}>
+      <h3 className="text-sm text-gray-600 font-medium mb-1">{titulo}</h3>
+      <div className="text-2xl font-bold text-gray-800">
+        {typeof valor === 'string' ? valor : valor}
+      </div>
+    </div>
+  );
 }
+
 
 function GeocodeMarker({ cliente }) {
   const [pos, setPos] = useState(null);
