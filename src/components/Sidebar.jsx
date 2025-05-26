@@ -34,7 +34,7 @@ const Sidebar = () => {
           <SidebarItem to="/administradores" icon={<UserPlus size={20} />} label="Administradores" />
           <SidebarItem to="/cupons" icon={<Tag size={20} />} label="Cupons" />
           <SidebarItem to="/compras" icon={<ShoppingBag size={20} />} label="Compras" />
-          <SidebarItem to="/avaliacoes" icon={<Star size={20} />} label="Avaliações" />
+          {/*<SidebarItem to="/avaliacoes" icon={<Star size={20} />} label="Avaliações" />*/}
           <SidebarItem to="/indicacoes" icon={<ThumbsUp size={20} />} label="Indicações" />
           <SidebarItem to="/compras/historico" icon={<Clock size={20} />} label="Histórico de Compras" />
         </ul>

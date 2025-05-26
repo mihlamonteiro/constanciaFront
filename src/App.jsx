@@ -17,7 +17,7 @@ import AdicionarAdministrador from "./pages/AdicionarAdministrador";
 import EditarAdministrador from "./pages/EditarAdministrador";
 import Indica from "./pages/Indica";
 import Compras from "./pages/Compras";
-import Avaliacoes from "./pages/Avaliacoes";
+//import Avaliacoes from "./pages/Avaliacoes";
 import Dashboard from "./pages/DashboardPro";
 import VisualizarCompras from "./pages/VisualizarCompras";
 
@@ -48,7 +48,7 @@ function App() {
             <Route path="/administradores/editar/:cpf" element={<EditarAdministrador />} />
             <Route path="/indicacoes" element={<Indica />} />
             <Route path="/compras" element={<Compras />} />
-            <Route path="/avaliacoes" element={<Avaliacoes />} />
+            {/* <Route path="/avaliacoes" element={<Avaliacoes />} /> */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/compras/historico" element={<VisualizarCompras />} />
 
